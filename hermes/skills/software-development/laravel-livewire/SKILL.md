@@ -91,6 +91,45 @@ PHP code changes, test writing, and API resource transformers.
   }
   ```
 
+- **`Sanctum::actingAs()` does not work with `ability:`/`abilities:` middleware.**
+  `Sanctum::actingAs($user, ['tickets:read'])` creates a Mockery mock token,
+  but the Sanctum Guard resolves the user from the session guard first and
+  wraps it with `TransientToken` (which has no abilities). The ability
+  middleware then always throws `MissingAbilityException`. **Fix:** create a
+  real token via `$user->createToken('name', $abilities)->plainTextToken`
+  and authenticate via `Authorization: Bearer <token>` header:
+  ```php
+  $token = $user->createToken('test', ['tickets:read'])->plainTextToken;
+  $this->withHeaders(['Authorization' => 'Bearer '.$token])->getJson('/api/tickets');
+  ```
+
+- **`Route::middleware()` accepts one argument, not two.** Passing two
+  separate strings like `->middleware('ability:hr:read', 'role_or_permission:view_hr_dashboard')`
+  causes PHPStan errors (2 params, 1 required) and silently drops the
+  second middleware. Use an array: `->middleware(['ability:hr:read', 'role_or_permission:view_hr_dashboard'])`.
+
+- **Ability middleware tests need Spatie permissions too.** Routes with both
+  `ability:X:read` and `role_or_permission:Y` middleware require the test
+  user to have BOTH the token ability AND the Spatie permission. Tests that
+  only set the ability will get 403 from the role check, not a clean pass.
+  Assign the permission in `createUserWithUnit(permissions: [...])`.
+
+- **Sanctum guard caches resolved user across requests in a single test.**
+  When a test makes multiple HTTP requests with different Bearer tokens
+  (e.g. testing as user A then user B), the Sanctum guard caches the
+  first token's user and returns it for all subsequent requests. Fix: call
+  `Auth::forgetGuards()` (or `\Illuminate\Support\Facades\Auth::forgetGuards()`)
+  before each authenticated request when switching tokens within one test.
+  Without this, the second request silently uses the first user's token
+  abilities and permissions.
+
+- **Nested ability middleware groups require tokens with both abilities.**
+  When write routes are nested inside a read ability group (e.g.
+  `ability:hardware:read` wraps `abilities:hardware:write`), a token with
+  only the write ability fails the outer read check. Create tokens with
+  both: `['hardware:read', 'hardware:write']` for write operations in
+  nested-group route structures.
+
 ## Merge Conflicts in Auto-Generated Files
 
 When a PR has merge conflicts with `upstream/beta` in auto-generated files

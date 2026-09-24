@@ -17,6 +17,58 @@
 | HasFactory on model | `use HasFactory;` alone | `/** @use HasFactory<\Database\Factories\XFactory> */` above `use HasFactory;` |
 | JsonResource magic property | `$this->field` in `toArray()` | `@property-read` annotations + `$model = $this->resource;` with `@var Model $model` |
 | After fixing PHPStan errors | Run `composer phpstan` once | Regenerate baseline: `vendor/bin/phpstan analyse --generate-baseline`, then verify |
+| Multiple middleware args | `->middleware('a', 'b')` | `->middleware(['a', 'b'])` — single string or array, never two args |
+
+## Sanctum Token Testing
+
+**Never use `Sanctum::actingAs()` with ability middleware.** The Guard resolves
+the user from the session guard first and wraps with `TransientToken` (no
+abilities). The `ability:` middleware always throws `MissingAbilityException`.
+
+**Correct pattern — real tokens via Bearer header:**
+
+```php
+// Create token with specific abilities
+$token = $user->createToken('test', ['tickets:read', 'tickets:write'])->plainTextToken;
+
+// Authenticate via header
+$response = $this->withHeaders([
+    'Authorization' => 'Bearer ' . $token,
+    'Accept' => 'application/json',
+])->getJson('/api/tickets');
+```
+
+**Test helper pattern:**
+
+```php
+private function createTokenWithAbilities(array $abilities, array $permissions = []): string
+{
+    $args = [];
+    if ($permissions) {
+        $args['permissions'] = $permissions;
+    }
+    ['user' => $user] = $this->createUserWithUnit(...$args);
+    return $user->createToken('test-token', $abilities)->plainTextToken;
+}
+```
+
+**Guard caching across requests:** When a test makes multiple HTTP requests
+with different Bearer tokens (e.g. testing as user A then user B), the
+Sanctum guard caches the first token's user. Call `Auth::forgetGuards()`
+before each request when switching tokens within one test.
+
+**Dual middleware trap:** Routes with both `ability:X:read` and
+`role_or_permission:Y` require the test user to have BOTH the token ability
+AND the Spatie permission. Pass permissions as the second arg:
+
+```php
+$token = $this->createTokenWithAbilities(['tickets:read'], ['view_all_tickets']);
+```
+
+**Zabbix / parameterized endpoints:** When testing ability middleware on
+endpoints that require query parameters (e.g. Zabbix), a 422 validation
+error proves the ability check passed (middleware ran in order). Accept
+`assertContains($response->getStatusCode(), [200, 422])` as proof.
 
 ## Factory Creation Checklist
 

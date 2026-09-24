@@ -1,16 +1,22 @@
 ---
 name: git-workflow
 description: "Git pitfalls: nested repos, staging, identity."
-version: 1.0.0
+version: 1.1.0
 author: Sydney
 license: MIT
 metadata:
   hermes:
-    tags: [git, workflow, pitfalls, staging, nested-repos, commit]
+    tags: [git, workflow, pitfalls, staging, nested-repos, commit, session-init]
     category: software-development
 ---
 
 # Git Workflow
+
+## When to Use
+
+Use when committing, pushing, branching, or resolving git-related issues in any
+project. Also use at session start to initialize the working environment (git
+sync, MCP tool verification, reading project docs).
 
 Pitfalls and procedures for everyday git operations that fall outside standard
 `gh` CLI workflows (for gh-specific flows see the `github` skill).
@@ -20,6 +26,25 @@ Pitfalls and procedures for everyday git operations that fall outside standard
 - Always check `git status` and `git remote -v` before staging or pushing.
 - Configure per-repo identity before first commit if global config is absent.
 - Never assume a branch name — read it from `git branch --show-current`.
+- Verify MCP tools are operational at session start, not mid-task.
+
+## Session Initialization
+
+For projects with MCP tooling (Laravel Boost, Context7, CodeGraph, GitHub MCP),
+verify all tools at session start before doing development work. Do not assume
+they are running — probe each one. Fix failures immediately so the toolchain is
+ready before the first real task.
+
+### Verification order
+
+1. `git remote -v` + `git branch --show-current` + `git status`
+2. Sync current branch: `git fetch upstream <base-branch> && git merge upstream/<base-branch> --no-edit`
+3. Read project AGENTS.md (if present)
+4. Probe each MCP tool with a lightweight call (e.g. `application_info`, `list_pull_requests`)
+5. Fix any broken tools before proceeding
+
+See `references/session-init.md` for project-specific initialization procedures
+(h-dashboard, and patterns for future projects).
 
 ## Pitfalls
 
@@ -83,3 +108,4 @@ Detect from `gh auth status` or set manually.
 - `git status` shows no unexpected submodule entries.
 - `git diff --cached --stat` shows actual file additions, not just mode changes.
 - Commit and push succeed without warnings about embedded repos.
+- All configured MCP tools respond to probe calls.
