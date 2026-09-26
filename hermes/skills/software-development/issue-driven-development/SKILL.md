@@ -18,6 +18,8 @@ Procedure for taking GitHub issues from fetch to merged-ready PR.
 
 User provides GitHub issue numbers and asks to implement them, or says "انجام بده" followed by issue links, ending with commit/push/PR instructions.
 
+Also covers review follow-up: "apply the reviews on PR #N and open a new PR" — when the reviewed PR's head branch is not pushable by you, follow `references/review-feedback.md` (read both review endpoints, RED-prove each claim, ship a superseding PR from your fork).
+
 ## Procedure
 
 ### 1. Sync branch from upstream
@@ -96,6 +98,8 @@ Blocking checks: Pint, Tests & Coverage, PHPStan. Mutation Testing is non-blocki
 - **PostgreSQL sequences after seeding with explicit IDs.** Call `SELECT setval('table_id_seq', COALESCE((SELECT MAX(id) FROM table), 1))` to avoid duplicate key errors in subsequent tests.
 
 - **CI check timing.** GitHub checks show `pending` immediately but take 2-5 min to start. Poll every 60s, not immediately after push.
+
+- **Review feedback arrives on two endpoints.** `gh pr view --comments` shows only issue-level comments; inline `suggestion` comments live in `pulls/N/comments` and the blocking verdict in `reviews[]`. Missing one endpoint means shipping a partial fix and drawing another review round.
 
 ## Parallelization pattern
 
