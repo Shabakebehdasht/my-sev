@@ -39,6 +39,18 @@ PHP code changes, test writing, and API resource transformers.
    and PHPStan reports new errors. Run `vendor/bin/phpstan analyse
    --generate-baseline` after every fix round, then verify with
    `composer phpstan`.
+7. **`#[Locked]` on every prop the embedding page passes down.** Any public
+   Livewire property is writable from the client request unless marked
+   `#[Locked]` — props are not read-only just because the parent set them.
+   Lock view-name slots, payload maps and placeholders; leave only the
+   component's own interactive state (search text, expansion, selection)
+   unlocked. A dynamic `@include($viewNameProp)` over an unlocked prop turns
+   it into arbitrary-view rendering for any authenticated client, and a bogus
+   name throws `ViewException` (a 500) on every render. Pin the exposure with a
+   throwaway test before claiming it: `Livewire::test('c')->set('prop',
+   'value')->assertSet('prop', 'value')` — if `set()` sticks, the prop is
+   client-writable end-to-end (re-render with `->html()` to prove the value is
+   actually used, not just stored).
 
 ## Pitfalls
 
@@ -130,7 +142,44 @@ PHP code changes, test writing, and API resource transformers.
   both: `['hardware:read', 'hardware:write']` for write operations in
   nested-group route structures.
 
-## Merge Conflicts in Auto-Generated Files
+## Running the Suite in an Isolated Checkout
+
+Never `git checkout` someone else's branch to inspect or test it — the session's
+own working branch must stay checked out. Use a worktree instead:
+
+```bash
+git fetch <canonical-repo-url> <ref>:<local-branch>   # adds a ref without touching remotes
+git worktree add --detach /path/to/wt <local-branch>
+cp .env /path/to/wt/.env                              # gitignored; tests need APP_KEY
+cd /path/to/wt
+```
+
+A fresh worktree then lacks three things the main checkout has. Fix all three
+before running anything, or you will misread environment gaps as regressions:
+
+1. **Autoloader.** With `optimize-autoloader` in `composer.json` the classmap
+   hard-codes the MAIN tree's paths, so classes added by the branch under review
+   load as "class not found" (and `$baseDir` in the generated files still points
+   at the old tree). Copy the vendor dir and regenerate inside the worktree:
+   `rm vendor && cp -a <main>/vendor ./vendor && composer dump-autoload -o`
+   — do not symlink `vendor`, the dump would rewrite the shared files.
+2. **Frontend build.** `public/build` is gitignored; without its manifest every
+   HTTP page test fails with `Vite manifest not found`. Symlink it:
+   `ln -s <main>/public/build <wt>/public/build`.
+3. **Cache.** `php artisan config:clear && php artisan route:clear` before the run
+   (stale `routes-v7.php` also breaks Livewire endpoint hashes).
+
+Pitfalls:
+- **Classify a failure before reporting it.** A suite that fails only on
+  page-load tests in a fresh checkout is the missing Vite manifest, not the
+  branch. Environment failures get fixed in the harness; only failures that
+  survive a prepared checkout are findings on the code.
+- **Run the project's own entrypoint** (`composer test`), not bare
+  `vendor/bin/pest` — the entrypoint bakes in the cache clears and env toggles.
+- **Clean up:** `git worktree remove /path/to/wt` plus the temp local branch when
+  the verification is done; the copied `vendor/` is the expensive part.
+
+## Merge Conflicts in Auto-generated Files
 
 When a PR has merge conflicts with `upstream/beta` in auto-generated files
 (like `phpstan-baseline.neon`), do NOT manually merge the conflict markers.

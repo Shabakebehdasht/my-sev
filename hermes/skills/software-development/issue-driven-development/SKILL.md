@@ -20,6 +20,8 @@ User provides GitHub issue numbers and asks to implement them, or says "انجا
 
 Also covers review follow-up: "apply the reviews on PR #N and open a new PR" — when the reviewed PR's head branch is not pushable by you, follow `references/review-feedback.md` (read both review endpoints, RED-prove each claim, ship a superseding PR from your fork).
 
+Also covers inbound verification: "check PR #N" / "is this PR correct" — reproduce the PR's claims one by one in an isolated worktree, classify failures as harness vs defect, and pin each finding with a runnable proof (`references/verifying-a-pr.md`).
+
 ## Procedure
 
 ### 1. Sync branch from upstream
