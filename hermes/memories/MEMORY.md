@@ -3,3 +3,5 @@ h-dashboard tooling: CodeGraph v1.6.0 at /home/runner/.npm-global/bin/codegraph 
 h-dashboard git: only `origin` = fork Shabakebehdasht/h-dashboard is configured; canonical upstream is fetched without touching remotes: `git fetch https://github.com/asgarimehdi/h-dashboard beta:refs/remotes/upstream/beta`. Branch `sevda` tracks origin/beta; local also pushed as `sevda:sevda` (origin/sevda lags).
 §
 Hermes skills: `github` is BUNDLED (skill_manage refuses writes) — don't try to patch it; PR-review-response workflow lives in `issue-driven-development` → `references/review-feedback.md`. `process_manage` is deferred: invoke via tool_call, not directly.
+§
+h-dashboard local test env: Postgres accepts connections on 127.0.0.1:5432 (socket dead; `pg_isready` without -h lies), user/password = .env `DB_USERNAME`/`DB_PASSWORD`; DB `h_dashboard_test` created + migrated 2026-09-30, so `XDEBUG_MODE=off ./vendor/bin/pest --parallel` runs CI-style (~140s). No pcov locally — coverage gate is CI-only. `vendor/bin/pint` is blocked by the lifecycle scan guard (binary >1MiB); run `composer pint:test` instead.

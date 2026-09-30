@@ -101,6 +101,8 @@ Blocking checks: Pint, Tests & Coverage, PHPStan. Mutation Testing is non-blocki
 
 - **CI check timing.** GitHub checks show `pending` immediately but take 2-5 min to start. Poll every 60s, not immediately after push.
 
+- **A test asserting an env key's absence from `/proc/self/environ` fails only under `--parallel`.** Paratest workers are exec'd AFTER the parent has putenv'd phpunit.xml/.env, so keys like `DB_DATABASE` are legitimately in the worker's exec-time environ. Probe with a key nothing else sets (plus a `getenv()` guard against vacuous passes), never a real config key; reproduce locally with `php artisan test --parallel --filter=<Test>` vs the same command without `--parallel`.
+
 - **Review feedback arrives on two endpoints.** `gh pr view --comments` shows only issue-level comments; inline `suggestion` comments live in `pulls/N/comments` and the blocking verdict in `reviews[]`. Missing one endpoint means shipping a partial fix and drawing another review round.
 
 ## Parallelization pattern
