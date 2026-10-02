@@ -30,6 +30,22 @@
     "use_count": 5,
     "view_count": 5
   },
+  "feature-clarify": {
+    "archived_at": null,
+    "created_at": "2026-10-02T15:37:58.493408+00:00",
+    "created_by": "learn",
+    "first_seen_at": null,
+    "last_patched_at": "2026-10-02T15:38:05.599241+00:00",
+    "last_reused_patch_generation": 0,
+    "last_used_at": "2026-10-02T15:38:12.337789+00:00",
+    "last_viewed_at": "2026-10-02T15:38:12.336753+00:00",
+    "patch_count": 1,
+    "patch_generation": 1,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
+  },
   "git-workflow": {
     "archived_at": null,
     "created_at": "2026-09-21T18:58:10.077603+00:00",
@@ -52,14 +68,14 @@
     "created_by": null,
     "last_patched_at": null,
     "last_reused_patch_generation": 0,
-    "last_used_at": "2026-09-30T13:54:13.771098+00:00",
-    "last_viewed_at": "2026-09-30T13:54:13.769279+00:00",
+    "last_used_at": "2026-10-02T13:57:32.248737+00:00",
+    "last_viewed_at": "2026-10-02T13:57:32.247605+00:00",
     "patch_count": 0,
     "patch_generation": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 27,
-    "view_count": 27
+    "use_count": 28,
+    "view_count": 28
   },
   "hermes-agent": {
     "archived_at": null,
@@ -82,14 +98,14 @@
     "created_by": null,
     "last_patched_at": null,
     "last_reused_patch_generation": 0,
-    "last_used_at": "2026-09-07T16:49:26.316884+00:00",
-    "last_viewed_at": "2026-09-07T16:49:26.313832+00:00",
+    "last_used_at": "2026-10-02T15:36:51.543054+00:00",
+    "last_viewed_at": "2026-10-02T15:36:51.542067+00:00",
     "patch_count": 0,
     "patch_generation": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 1,
-    "view_count": 1
+    "use_count": 2,
+    "view_count": 2
   },
   "improve": {
     "archived_at": null,
@@ -97,14 +113,14 @@
     "created_by": null,
     "last_patched_at": null,
     "last_reused_patch_generation": 0,
-    "last_used_at": "2026-09-26T15:23:56.077804+00:00",
-    "last_viewed_at": "2026-09-26T15:23:56.076786+00:00",
+    "last_used_at": "2026-10-02T13:42:48.583878+00:00",
+    "last_viewed_at": "2026-10-02T13:42:48.582943+00:00",
     "patch_count": 0,
     "patch_generation": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 8,
-    "view_count": 8
+    "use_count": 9,
+    "view_count": 9
   },
   "improve-workflows": {
     "archived_at": null,
